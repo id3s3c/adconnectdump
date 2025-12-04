@@ -1,0 +1,67 @@
+name: ADSyncDecrypt
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+  workflow_dispatch:  # Allow manual trigger
+
+jobs:
+  build:
+    runs-on: windows-latest  # Windows required for .NET Framework
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Setup MSBuild
+      uses: microsoft/setup-msbuild@v2
+    
+    - name: Setup NuGet
+      uses: NuGet/setup-nuget@v2
+    
+    - name: Restore NuGet packages
+      run: nuget restore
+    
+    - name: Build ADSyncDecrypt
+      run: msbuild ADSyncDecrypt/ADSyncDecrypt.csproj /p:Configuration=Release /p:Platform="Any CPU"
+    
+    - name: Build ADSyncGather
+      run: msbuild ADSyncGather/ADSyncGather.csproj /p:Configuration=Release /p:Platform="Any CPU"
+    
+    - name: Build ADSyncQuery
+      run: msbuild ADSyncQuery/ADSyncQuery.csproj /p:Configuration=Release /p:Platform="Any CPU"
+    
+    - name: Build ADSyncCertDump
+      run: msbuild ADSyncCertDump/ADSyncCertDump.csproj /p:Configuration=Release /p:Platform="Any CPU"
+    
+    - name: Collect binaries
+      run: |
+        mkdir publish
+        copy ADSyncDecrypt\bin\Release\*.exe publish\
+        copy ADSyncDecrypt\bin\Release\*.dll publish\
+        copy ADSyncGather\bin\Release\ADSyncGather.exe publish\
+        copy ADSyncQuery\bin\Release\ADSyncQuery.exe publish\
+        copy ADSyncCertDump\bin\Release\ADSyncCertDump.exe publish\
+        copy adconnectdump.py publish\
+        copy decrypt.py publish\
+        copy README.md publish\
+      shell: cmd
+    
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: adconnectdump-binaries
+        path: publish/
+        retention-days: 90
+    
+    - name: Create Release (on tag)
+      if: startsWith(github.ref, 'refs/tags/')
+      uses: softprops/action-gh-release@v1
+      with:
+        files: publish/*
+        draft: false
+        prerelease: false
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
