@@ -1,4 +1,4 @@
-name: ADSyncDecrypt
+name: Build ADConnectDump
 
 on:
   push:
@@ -21,8 +21,21 @@ jobs:
     - name: Setup NuGet
       uses: NuGet/setup-nuget@v2
     
-    - name: Restore NuGet packages
-      run: nuget restore
+    - name: Restore NuGet packages for ADSyncDecrypt
+      run: nuget restore ADSyncDecrypt/ADSyncDecrypt.csproj -PackagesDirectory packages
+      continue-on-error: true
+    
+    - name: Restore NuGet packages for ADSyncGather
+      run: nuget restore ADSyncGather/ADSyncGather.csproj -PackagesDirectory packages
+      continue-on-error: true
+    
+    - name: Restore NuGet packages for ADSyncQuery
+      run: nuget restore ADSyncQuery/ADSyncQuery.csproj -PackagesDirectory packages
+      continue-on-error: true
+    
+    - name: Restore NuGet packages for ADSyncCertDump
+      run: nuget restore ADSyncCertDump/ADSyncCertDump.csproj -PackagesDirectory packages
+      continue-on-error: true
     
     - name: Build ADSyncDecrypt
       run: msbuild ADSyncDecrypt/ADSyncDecrypt.csproj /p:Configuration=Release /p:Platform="Any CPU"
