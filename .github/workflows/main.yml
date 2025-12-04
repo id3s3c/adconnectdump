@@ -1,4 +1,4 @@
-name: Build ADConnectDump
+name: Build ADSyncDecrypt
 
 on:
   push:
@@ -21,45 +21,24 @@ jobs:
     - name: Setup NuGet
       uses: NuGet/setup-nuget@v2
     
-    - name: Restore NuGet packages for ADSyncDecrypt
-      run: nuget restore ADSyncDecrypt/ADSyncDecrypt.csproj -PackagesDirectory packages
-      continue-on-error: true
+    - name: Restore NuGet packages
+      run: nuget restore ADSyncDecrypt/ADSyncDecrypt.sln
     
-    - name: Restore NuGet packages for ADSyncGather
-      run: nuget restore ADSyncGather/ADSyncGather.csproj -PackagesDirectory packages
-      continue-on-error: true
-    
-    - name: Restore NuGet packages for ADSyncQuery
-      run: nuget restore ADSyncQuery/ADSyncQuery.csproj -PackagesDirectory packages
-      continue-on-error: true
-    
-    - name: Restore NuGet packages for ADSyncCertDump
-      run: nuget restore ADSyncCertDump/ADSyncCertDump.csproj -PackagesDirectory packages
-      continue-on-error: true
-    
-    - name: Build ADSyncDecrypt
-      run: msbuild ADSyncDecrypt/ADSyncDecrypt.csproj /p:Configuration=Release /p:Platform="Any CPU"
-    
-    - name: Build ADSyncGather
-      run: msbuild ADSyncGather/ADSyncGather.csproj /p:Configuration=Release /p:Platform="Any CPU"
-    
-    - name: Build ADSyncQuery
-      run: msbuild ADSyncQuery/ADSyncQuery.csproj /p:Configuration=Release /p:Platform="Any CPU"
-    
-    - name: Build ADSyncCertDump
-      run: msbuild ADSyncCertDump/ADSyncCertDump.csproj /p:Configuration=Release /p:Platform="Any CPU"
+    - name: Build solution
+      run: msbuild ADSyncDecrypt/ADSyncDecrypt.sln /p:Configuration=Release /p:Platform="Any CPU"
     
     - name: Collect binaries
       run: |
         mkdir publish
-        copy ADSyncDecrypt\bin\Release\*.exe publish\
-        copy ADSyncDecrypt\bin\Release\*.dll publish\
-        copy ADSyncGather\bin\Release\ADSyncGather.exe publish\
-        copy ADSyncQuery\bin\Release\ADSyncQuery.exe publish\
-        copy ADSyncCertDump\bin\Release\ADSyncCertDump.exe publish\
-        copy adconnectdump.py publish\
-        copy decrypt.py publish\
-        copy README.md publish\
+        copy ADSyncDecrypt\ADSyncDecrypt\bin\Release\*.exe publish\
+        copy ADSyncDecrypt\ADSyncDecrypt\bin\Release\*.dll publish\
+        copy ADSyncDecrypt\ADSyncGather\bin\Release\ADSyncGather.exe publish\
+        copy ADSyncDecrypt\ADSyncQuery\bin\Release\ADSyncQuery.exe publish\
+        copy ADSyncDecrypt\ADSyncCertDump\bin\Release\ADSyncCertDump.exe publish\
+        if exist adconnectdump.py copy adconnectdump.py publish\
+        if exist decrypt.py copy decrypt.py publish\
+        if exist README.md copy README.md publish\
+        dir publish
       shell: cmd
     
     - name: Upload build artifacts
