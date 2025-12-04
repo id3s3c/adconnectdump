@@ -27,6 +27,9 @@ jobs:
     - name: Build solution
       run: msbuild ADSyncDecrypt/ADSyncDecrypt.sln /p:Configuration=Release /p:Platform="Any CPU"
     
+    - name: Build ADSyncDecrypt separately
+      run: msbuild ADSyncDecrypt/ADSyncDecrypt/ADSyncDecrypt.csproj /p:Configuration=Release /p:Platform="Any CPU"
+    
     - name: Collect binaries
       run: |
         mkdir publish
